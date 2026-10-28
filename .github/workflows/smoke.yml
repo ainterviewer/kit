@@ -1,0 +1,78 @@
+# Bring the stack up exactly as the README tells a new user to, then log in
+# through Caddy the way a browser would. Catches the kit drifting from the
+# images it pins: a renamed setting, a new required one, a broken route.
+#
+# Weekly as well as on changes, because the images can break the kit
+# without a commit here: a `caddy:2.10` rebuild, or a re-pushed tag.
+
+name: smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ADMIN_EMAIL: admin@example.org
+      ADMIN_PASSWORD: smoke-test-password
+      BASE: https://localhost
+      # Caddy signs `localhost` with its own local CA.
+      CURL: curl --fail-with-body --silent --show-error --insecure
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Configure as the README does
+        run: |
+          cp config.example.toml config.toml
+          cp .env.example .env
+          sed -i \
+            -e "s|^CONTACT_EMAIL=.*|CONTACT_EMAIL=privacy@example.org|" \
+            -e "s|^APP_SECRET__JWT_SECRET_KEY=.*|APP_SECRET__JWT_SECRET_KEY=$(openssl rand -hex 32)|" \
+            -e "s|^APP_SECRET__SESSION_SECRET_KEY=.*|APP_SECRET__SESSION_SECRET_KEY=$(openssl rand -hex 32)|" \
+            .env
+
+      - name: Start the stack
+        run: docker compose up -d --wait --wait-timeout 300
+
+      - name: Create the first admin
+        # No terminal in CI, so getpass falls back to reading stdin.
+        run: |
+          printf '%s\n%s\n' "$ADMIN_PASSWORD" "$ADMIN_PASSWORD" |
+            docker compose exec -T backend python /opt/kit/create_admin.py "$ADMIN_EMAIL" Smoke
+
+      - name: Frontend reaches the backend
+        run: $CURL "$BASE/health/ready"
+
+      - name: Backend serves the configured contact
+        run: |
+          $CURL "$BASE/api/instance" | tee /dev/stderr |
+            jq -e '.contact_email == "privacy@example.org"'
+
+      - name: Log in and open the dashboard
+        run: |
+          $CURL --cookie-jar cookies.txt \
+            -H 'Content-Type: application/json' \
+            -d "{\"email\": \"$ADMIN_EMAIL\", \"password\": \"$ADMIN_PASSWORD\"}" \
+            "$BASE/api/login" | tee /dev/stderr |
+            jq -e '.two_factor_required != true'
+          # Rendered server-side, so this goes Caddy -> frontend -> backend
+          # with the session; without one it would redirect to /login.
+          status=$($CURL --cookie cookies.txt -o /dev/null -w '%{http_code}' "$BASE/dashboard")
+          echo "GET /dashboard -> $status"
+          test "$status" = 200
+
+      - name: Show logs
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Tear down
+        if: always()
+        run: docker compose down --volumes
