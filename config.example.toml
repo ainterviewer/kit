@@ -19,6 +19,15 @@ available_models = [
 db = "sqlite"
 db_path = "storage"
 
+# The dashboard's interview-guide assistant. `openrouter:` or `openai:` only,
+# and the model must support tool calls.
+[services.assistance]
+model = "openrouter:openai/gpt-oss-120b"
+
+# Machine translation of a project's guide, consent and welcome.
+[services.translation]
+model = "openrouter:openai/gpt-oss-120b"
+
 # Spoken interviews. Both use OpenAI and need OPENAI_API_KEY; leave the
 # section out to run text-only interviews.
 # [services.speech]

@@ -69,6 +69,12 @@ Without email, the platform runs fine for accounts created with
 emailing participants are unavailable. To enable them, fill in
 `[services.email]` in `config.toml` and the matching passwords in `.env`.
 
+### Guide assistant
+
+The dashboard's assistant helps write interview guides. It uses the model in
+`[services.assistance]` (`openrouter:` or `openai:` models with tool calling),
+OpenRouter's `gpt-oss-120b` in the example config.
+
 ### Speech
 
 Spoken interviews use OpenAI's speech models. To enable them, uncomment
