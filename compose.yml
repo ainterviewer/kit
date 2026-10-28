@@ -24,7 +24,7 @@ services:
         condition: service_healthy
 
   frontend:
-    image: ghcr.io/ainterviewer/frontend:${FRONTEND_VERSION:-v0.5.13}
+    image: ghcr.io/ainterviewer/frontend:${FRONTEND_VERSION:-v0.9.11}
     restart: unless-stopped
     environment:
       API_URL: "http://backend:8666"
@@ -36,7 +36,7 @@ services:
         condition: service_healthy
 
   backend:
-    image: ghcr.io/ainterviewer/backend:${BACKEND_VERSION:-v0.6.7}
+    image: ghcr.io/ainterviewer/backend:${BACKEND_VERSION:-v0.10.12}
     restart: unless-stopped
     environment:
       APP_ENV: "production"
