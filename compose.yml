@@ -36,7 +36,7 @@ services:
         condition: service_healthy
 
   backend:
-    image: ghcr.io/ainterviewer/backend:${BACKEND_VERSION:-v0.10.12}
+    image: ghcr.io/ainterviewer/backend:${BACKEND_VERSION:-v0.10.13}
     restart: unless-stopped
     environment:
       APP_ENV: "production"
