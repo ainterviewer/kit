@@ -1,0 +1,39 @@
+# Copy to config.toml. Secrets do not belong here; they go in .env.
+
+[app]
+# With true, new accounts need an invitation from an admin.
+registration_requires_token = true
+
+[llm]
+# Models are `<provider>:<model>` (through any-llm integration); each provider
+# needs its key in .env.
+# Every entry in demo_models and default_model must also be in available_models.
+default_model = "openrouter:openai/gpt-oss-120b"
+available_models = [
+  "openrouter:openai/gpt-oss-120b",
+  "openrouter:google/gemma-4-31b-it",
+  "openrouter:mistralai/mistral-small-2603",
+]
+
+[database]
+db = "sqlite"
+db_path = "storage"
+
+# Spoken interviews. Both use OpenAI and need OPENAI_API_KEY; leave the
+# section out to run text-only interviews.
+# [services.speech]
+# stt_model = "gpt-realtime-whisper"
+# stt_endpoint = "wss://api.openai.com"
+# tts_model = "gpt-4o-mini-tts"
+# tts_voice = "cedar"
+
+# Outgoing mail. Passwords go in .env (see .env.example).
+# [services.email]
+# smtp_server = "smtp.example.org"
+# smtp_port = 587
+#
+# [services.email.sender]
+# email = "noreply@example.org"
+#
+# [services.email.recipient]
+# email = "admin@example.org"

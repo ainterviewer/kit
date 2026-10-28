@@ -1,0 +1,18 @@
+{$DOMAIN} {
+	encode zstd gzip
+
+	request_body {
+		max_size 10MB
+	}
+
+	@backend path /api /api/* /ws /ws/* /docs /docs/* /openapi.json
+	handle @backend {
+		reverse_proxy backend:8666
+	}
+
+	handle {
+		reverse_proxy frontend:3000
+	}
+
+	header X-Robots-Tag "noindex, nofollow"
+}

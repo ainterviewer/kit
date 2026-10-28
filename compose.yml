@@ -1,0 +1,64 @@
+# AInterviewer on a single machine: Caddy terminates TLS and routes the API
+# and websockets to the backend and everything else to the frontend, the same
+# split the hosted instance makes in nginx.
+#
+# Versions are pinned so an install keeps running what it was tested with.
+# Bump them together: the frontend is generated against the backend's API.
+
+services:
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      frontend:
+        condition: service_healthy
+
+  frontend:
+    image: ghcr.io/ainterviewer/frontend:${FRONTEND_VERSION:-v0.5.13}
+    restart: unless-stopped
+    environment:
+      API_URL: "http://backend:8666"
+      # adapter-node checks form posts against this; behind Caddy the
+      # container cannot work it out on its own.
+      ORIGIN: "https://${DOMAIN}"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    image: ghcr.io/ainterviewer/backend:${BACKEND_VERSION:-v0.6.7}
+    restart: unless-stopped
+    environment:
+      APP_ENV: "production"
+      # Base of every link the backend sends out: invitations, participant
+      # links, verification and password-reset emails.
+      APP__PUBLIC_URL: "https://${DOMAIN}"
+      # There is no separate website in a self-hosted install, so links to it
+      # (in email footers) lead to the platform itself.
+      APP__WEBSITE_URL: "https://${DOMAIN}"
+      APP__CONTACT_EMAIL: ${CONTACT_EMAIL:?set CONTACT_EMAIL in .env}
+    env_file: .env
+    volumes:
+      - ./config.toml:/app/config.toml:ro
+      - ./storage:/app/storage
+      - ./scripts:/opt/kit:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8666/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  caddy-data:
+  caddy-config:
