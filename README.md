@@ -105,6 +105,27 @@ If you use AInterviewer in your research, please cite:
 > _Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics
 > (Volume 3: System Demonstrations)_, 119–127. https://doi.org/10.18653/v1/2026.acl-demo.12
 
+<details>
+<summary>BibTeX</summary>
+
+```bibtex
+@inproceedings{gardhus-etal-2026-ainterviewer,
+    title = "{AI}nterviewer: A Platform for Designing and Conducting {AI}-led Qualitative Interviews",
+    author = "G{\r{a}}rdhus, Tobias and Vitsakis, Nikolas and Frederiksen, Fie Lejre and Rogers, Anna and Carlsen, Hjalmar Bang",
+    booktitle = "Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 3: System Demonstrations)",
+    month = jul,
+    year = "2026",
+    address = "San Diego, California, United States",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2026.acl-demo.12/",
+    doi = "10.18653/v1/2026.acl-demo.12",
+    pages = "119--127",
+    ISBN = "979-8-89176-392-0"
+}
+```
+
+</details>
+
 ## License
 
 [AGPL-3.0](LICENSE)
