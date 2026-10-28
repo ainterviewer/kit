@@ -132,6 +132,19 @@ If you use AInterviewer in your research, please cite:
 
 </details>
 
+### Paper versions
+
+The component versions each publication describes. The full release history is
+on the [documentation site](https://docs.ainterviewer.dk/releases/).
+
+| Publication                                                                         | Venue                 | Platform release | lib                                                           | backend                                                           | frontend                                                           |
+| ----------------------------------------------------------------------------------- | --------------------- | ---------------- | ------------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------ |
+| AInterviewer: A Platform for Designing and Conducting AI-led Qualitative Interviews | ACL 2026 Systems Demo | `2026.07.3` †    | [`v0.2.16`](https://github.com/ainterviewer/lib/tree/v0.2.16) | [`v0.4.10`](https://github.com/ainterviewer/backend/tree/v0.4.10) | [`v0.2.56`](https://github.com/ainterviewer/frontend/tree/v0.2.56) |
+
+† Predates this kit: those versions are listed to show which code the paper
+describes, and cannot be run with it. To try the platform, use the kit as it
+stands.
+
 ## License
 
 [AGPL-3.0](LICENSE)
