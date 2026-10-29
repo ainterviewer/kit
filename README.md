@@ -1,3 +1,5 @@
+[![Paper](https://img.shields.io/badge/ACL%202026-Demo-b31b1b.svg)](https://aclanthology.org/2026.acl-demo.12/)
+
 # AInterviewer self-host kit
 
 Run your own [AInterviewer](https://ainterviewer.dk) on a single Linux machine
