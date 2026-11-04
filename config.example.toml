@@ -15,6 +15,10 @@ available_models = [
   "openrouter:mistralai/mistral-small-2603",
 ]
 
+# Your own vLLM server (see README). Models without a provider prefix, such
+# as "openai/gpt-oss-120b", are sent here; set VLLM_API_KEY in .env.
+# vllm_base_url = "https://llm.example.org/v1"
+
 [database]
 db = "sqlite"
 db_path = "storage"

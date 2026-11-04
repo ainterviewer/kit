@@ -23,7 +23,8 @@ Data is kept in a SQLite database under `./storage`.
 - A Linux machine with Docker Engine and the Compose plugin. 2 vCPU and 4 GB RAM
   is plenty, because the language models run at the provider and not on the machine.
 - An API key for at least one model provider. [OpenRouter](https://openrouter.ai)
-  is the simplest, since one key covers many models.
+  is the simplest, since one key covers many models. Alternatively, your own
+  [vLLM](https://docs.vllm.ai) server (see [below](#your-own-vllm-server)).
 - For a public install, a domain whose DNS points at the machine, with ports 80
   and 443 open. You don't need one to try it out on `localhost`.
 
@@ -65,6 +66,52 @@ from the dashboard.
   and key, e.g. `APP__REGISTRATION_REQUIRES_TOKEN=false`.
 
 Apply changes with `docker compose up -d --force-recreate backend`.
+
+### Your own vLLM server
+
+Interviews can run on a model you host yourself with [vLLM](https://docs.vllm.ai),
+for instance on a university GPU cluster, so that no interview text leaves
+your infrastructure. The backend talks to vLLM's OpenAI-compatible API.
+
+On the GPU machine, start vLLM with an API key:
+
+```bash
+vllm serve openai/gpt-oss-120b --api-key "<a long random key>" --port 8000
+```
+
+Any model vLLM can serve works; `gpt-oss-120b` needs a single 80 GB GPU. Make
+sure the AInterviewer machine can reach the port, and put vLLM behind HTTPS
+(or a VPN) if traffic crosses a network you don't control.
+
+In `config.toml`, point `[llm]` at the server and list the model **without a
+provider prefix**. Unprefixed names are what route a model to vLLM, and the
+name must match the one vLLM serves (the `vllm serve` argument, or
+`--served-model-name` if you set it):
+
+```toml
+[llm]
+vllm_base_url = "https://llm.example.org/v1"
+default_model = "openai/gpt-oss-120b"
+available_models = [
+  "openai/gpt-oss-120b",
+  # Hosted models can sit alongside it:
+  # "openrouter:google/gemma-4-31b-it",
+]
+
+[services.translation]
+model = "openai/gpt-oss-120b"
+```
+
+Then set `VLLM_API_KEY` in `.env` to the key you gave `vllm serve`.
+
+<!-- TODO: fill in the first backend release that bundles lib with vllm_base_url. -->
+
+`vllm_base_url` requires backend `v0.10.14` or later. On older backends, give
+the server as `llm_host = "10.0.0.5"` and `llm_port = 8000` instead. These
+only speak plain HTTP, so keep that traffic on a private network.
+
+The guide assistant (`[services.assistance]`) cannot use vLLM yet; it needs an
+`openrouter:` or `openai:` model. The rest of the platform runs fine without it.
 
 ### Email
 
