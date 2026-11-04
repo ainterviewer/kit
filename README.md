@@ -104,8 +104,6 @@ model = "openai/gpt-oss-120b"
 
 Then set `VLLM_API_KEY` in `.env` to the key you gave `vllm serve`.
 
-<!-- TODO: fill in the first backend release that bundles lib with vllm_base_url. -->
-
 `vllm_base_url` requires backend `v0.10.14` or later. On older backends, give
 the server as `llm_host = "10.0.0.5"` and `llm_port = 8000` instead. These
 only speak plain HTTP, so keep that traffic on a private network.
