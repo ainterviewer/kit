@@ -8,11 +8,13 @@ platform without depending on the hosted instance.
 
 The stack is three containers:
 
-| Service    | Image                            | Role                                      |
-| ---------- | -------------------------------- | ----------------------------------------- |
-| `caddy`    | `caddy`                          | HTTPS, and routing `/api` and `/ws` to the backend |
-| `frontend` | `ghcr.io/ainterviewer/frontend`  | The web app ([source](https://github.com/ainterviewer/frontend)) |
-| `backend`  | `ghcr.io/ainterviewer/backend`   | API and interview engine ([source](https://github.com/ainterviewer/backend)) |
+| Service                                      | Image                           | Role                                                                         |
+| -------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------- |
+| `caddy`                                      | `caddy`                         | HTTPS, and routing `/api` and `/ws` to the backend                           |
+| [frontend](github.com/ainterviewer/frontend) | `ghcr.io/ainterviewer/frontend` | The web app ([source](https://github.com/ainterviewer/frontend))             |
+| [backend](github.com/ainterviewer/backend)   | `ghcr.io/ainterviewer/backend`  | API and interview engine ([source](https://github.com/ainterviewer/backend)) |
+
+Additionally, `backend` depends on [ainterviewer/lib](github.com/ainterviewer/lib)
 
 Data is kept in a SQLite database under `./storage`.
 
