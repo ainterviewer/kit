@@ -1,4 +1,6 @@
-# Copy to config.toml. Secrets do not belong here; they go in .env.
+# Copy to config.toml. Secrets do not belong here; they go in .env, and the
+# backend refuses to start with one here. So does a key a section does not
+# know, so a typo cannot quietly fall back to a default.
 
 [app]
 # With true, new accounts need an invitation from an admin.
@@ -7,10 +9,18 @@ registration_requires_token = true
 [llm]
 # Models are `<provider>:<model>` (through any-llm integration); each provider
 # needs its key in .env.
-# Every entry in demo_models and default_model must also be in available_models.
+#
+# Two lists, because they decide where respondents' answers may be sent:
+# `models` may be used by published projects and their distributed
+# interviews; `test_only_models` only in drafts and test interviews, and a
+# project using one cannot be published. A model in neither counts as test
+# only. List a provider in `models` only if your data-protection arrangements
+# allow participants' answers to go there.
 default_model = "openrouter:openai/gpt-oss-120b"
-available_models = [
+models = [
   "openrouter:openai/gpt-oss-120b",
+]
+test_only_models = [
   "openrouter:google/gemma-4-31b-it",
   "openrouter:mistralai/mistral-small-2603",
 ]
@@ -33,14 +43,17 @@ model = "openrouter:openai/gpt-oss-120b"
 model = "openrouter:openai/gpt-oss-120b"
 
 # Spoken interviews. Both use OpenAI and need OPENAI_API_KEY; leave the
-# section out to run text-only interviews.
+# section out to run text-only interviews. Like `test_only_models`, speech is
+# limited to test interviews until you set `test_only = false`, saying
+# respondents' recordings may go to OpenAI.
 # [services.speech]
 # stt_model = "gpt-realtime-whisper"
 # stt_endpoint = "wss://api.openai.com"
 # tts_model = "gpt-4o-mini-tts"
 # tts_voice = "cedar"
+# test_only = true
 
-# Outgoing mail. Passwords go in .env (see .env.example).
+# Outgoing mail. The sender's password is APP_SECRET__SMTP_PASSWORD in .env.
 # [services.email]
 # smtp_server = "smtp.example.org"
 # smtp_port = 587

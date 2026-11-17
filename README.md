@@ -60,10 +60,13 @@ from the dashboard.
 ## Configuration
 
 - **`.env`**: secrets and the domain. `.env.example` documents every variable.
-- **`config.toml`**: everything else: available models, registration, email,
-  speech. `config.example.toml` documents the common settings. Any setting can
-  also be given as an environment variable in `.env`, with `__` between section
-  and key, e.g. `APP__REGISTRATION_REQUIRES_TOKEN=false`.
+- **`config.toml`**: everything else: models, registration, email, speech.
+  `config.example.toml` documents the common settings. It holds no secrets --
+  the backend refuses to start with one there -- so you can keep it in
+  version control. A key a section does not know stops startup too, so a typo
+  cannot silently fall back to a default. Any setting can also be given as an
+  environment variable in `.env`, with `__` between section and key, e.g.
+  `APP__REGISTRATION_REQUIRES_TOKEN=false`.
 
 Apply changes with `docker compose up -d --force-recreate backend`.
 
@@ -92,11 +95,11 @@ name must match the one vLLM serves (the `vllm serve` argument, or
 [llm]
 vllm_base_url = "https://llm.example.org/v1"
 default_model = "openai/gpt-oss-120b"
-available_models = [
+models = [
   "openai/gpt-oss-120b",
-  # Hosted models can sit alongside it:
-  # "openrouter:google/gemma-4-31b-it",
 ]
+# Hosted models can sit alongside it, for drafts and test interviews only:
+# test_only_models = ["openrouter:google/gemma-4-31b-it"]
 
 [services.translation]
 model = "openai/gpt-oss-120b"
@@ -116,7 +119,8 @@ The guide assistant (`[services.assistance]`) cannot use vLLM yet; it needs an
 Without email, the platform runs fine for accounts created with
 `create_admin.py`, but self sign-up, password resets, two-factor codes and
 emailing participants are unavailable. To enable them, fill in
-`[services.email]` in `config.toml` and the matching passwords in `.env`.
+`[services.email]` in `config.toml` and the sender's SMTP password as
+`APP_SECRET__SMTP_PASSWORD` in `.env`.
 
 ### Guide assistant
 
@@ -127,7 +131,8 @@ OpenRouter's `gpt-oss-120b` in the example config.
 ### Speech
 
 Spoken interviews use OpenAI's speech models. To enable them, uncomment
-`[services.speech]` in `config.toml` and set `OPENAI_API_KEY`.
+`[services.speech]` in `config.toml` and set `OPENAI_API_KEY`. Speech stays
+limited to test interviews until you set `test_only = false` there.
 
 ## Upgrading
 
@@ -138,6 +143,21 @@ Set `BACKEND_VERSION` and `FRONTEND_VERSION` in `.env` to a newer
 ```bash
 docker compose pull && docker compose up -d
 ```
+
+### To backend v0.10.28
+
+Three settings changed shape; the backend refuses to start until they are
+moved:
+
+- **Models.** `[llm] available_models` is split into `models`, which
+  published projects may use, and `test_only_models`, for drafts and test
+  interviews only. Put a model in `models` only if participants' answers may
+  go to its provider.
+- **SMTP password.** Rename `APP_SERVICE__EMAIL__SENDER__PASSWORD` in `.env`
+  to `APP_SECRET__SMTP_PASSWORD`, and delete
+  `APP_SERVICE__EMAIL__RECIPIENT__PASSWORD`, which was never used.
+- **No secrets or stray keys in `config.toml`.** Move any secret to `.env`,
+  and remove keys the backend reports as unknown.
 
 The backend applies database migrations on start. Back up first (see below).
 
